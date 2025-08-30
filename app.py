@@ -38,6 +38,11 @@ def preprocess_image(img: Image.Image):
     img_array = img_array / 255.0  # Normalize
     return img_array
 
+# ✅ Root route to avoid 404 at "/"
+@app.get("/")
+def root():
+    return {"message": "🔥 Burn Detector API is running! Use POST /predict/ to classify an image."}
+
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     try:
@@ -63,6 +68,6 @@ async def predict(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    import os
     port = int(os.environ.get("PORT", 10000))  # Render sets PORT dynamically
     uvicorn.run(app, host="0.0.0.0", port=port)
+
