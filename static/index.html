@@ -965,206 +965,376 @@
     </div>
 
     <script>
-    let selectedFile = null;
+        let selectedFile = null;
 
-    // File input handling
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            handleFileSelect(file);
-        }
-    });
-
-    // Drag and drop handling
-    const uploadArea = document.querySelector('.upload-area');
-    
-    uploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
-    
-    uploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-    });
-    
-    uploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            handleFileSelect(files[0]);
-        }
-    });
-
-    function handleFileSelect(file) {
-        if (!file.type.startsWith('image/')) {
-            showError('Please select a valid image file.');
-            return;
-        }
-
-        selectedFile = file;
-        
-        // Show preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('previewImage').src = e.target.result;
-            document.getElementById('previewContainer').style.display = 'block';
-            document.getElementById('analyzeBtn').style.display = 'inline-block';
-            hideError();
-            hideResults();
-        };
-        reader.readAsDataURL(file);
-    }
-
-    // Analyze button
-    document.getElementById('analyzeBtn').addEventListener('click', async function() {
-        if (!selectedFile) {
-            showError('Please select an image first.');
-            return;
-        }
-
-        showLoading();
-        hideError();
-        hideResults();
-
-        try {
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-
-            // Updated fetch URL to deployed server
-            const response = await fetch('https://burn-detector.onrender.com/predict/', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        // File input handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileSelect(file);
             }
+        });
 
-            const result = await response.json();
+        // Drag and drop handling
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
             
-            if (result.error) {
-                throw new Error(result.error);
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file.');
+                return;
             }
 
-            showResults(result);
-
-        } catch (error) {
-            console.error('Error:', error);
-            showError('Error analyzing image: ' + error.message + '. Make sure the server is running.');
-        } finally {
-            hideLoading();
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewContainer').style.display = 'block';
+                document.getElementById('analyzeBtn').style.display = 'inline-block';
+                hideError();
+                hideResults();
+            };
+            reader.readAsDataURL(file);
         }
-    });
 
-    function showResults(result) {
-        document.getElementById('burnType').textContent = result.predicted_class || result.prediction || 'Unknown';
-        document.getElementById('confidence').textContent = ((result.confidence || 0) * 100).toFixed(1) + '%';
-        document.getElementById('results').style.display = 'block';
-        
-        // Show body part selection after results
-        document.getElementById('bodySelection').style.display = 'block';
+        // Analyze button
+        // Analyze button
+document.getElementById('analyzeBtn').addEventListener('click', async function() {
+    if (!selectedFile) {
+        showError('Please select an image first.');
+        return;
     }
 
-    function showLoading() {
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('analyzeBtn').disabled = true;
+    showLoading();
+    hideError();
+    hideResults();
+
+    try {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        // Updated fetch URL to deployed server
+        const response = await fetch('https://burn-detector.onrender.com/predict/', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        showResults(result);
+
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Error analyzing image: ' + error.message + '. Make sure the server is running.');
+    } finally {
+        hideLoading();
     }
+});
 
-    function hideLoading() {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('analyzeBtn').disabled = false;
-    }
 
-    function showError(message) {
-        document.getElementById('error').textContent = message;
-        document.getElementById('error').style.display = 'block';
-    }
+        function showResults(result) {
+            document.getElementById('burnType').textContent = result.predicted_class || result.prediction || 'Unknown';
+            document.getElementById('confidence').textContent = ((result.confidence || 0) * 100).toFixed(1) + '%';
+            document.getElementById('results').style.display = 'block';
+        }
 
-    function hideError() {
-        document.getElementById('error').style.display = 'none';
-    }
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('analyzeBtn').disabled = true;
+        }
 
-    function hideResults() {
-        document.getElementById('results').style.display = 'none';
-    }
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = false;
+        }
 
-    // Body Part Selection Variables
-    let selectedBodyParts = new Set();
-    let totalTBSA = 0;
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+        }
 
-    // Initialize body part selection
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.body-part').forEach(part => {
-            part.addEventListener('click', function() {
-                toggleBodyPart(this);
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+
+        // Body Part Selection Variables
+        let selectedBodyParts = new Set();
+        let totalTBSA = 0;
+
+        // Initialize body part selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to all body parts
+            document.querySelectorAll('.body-part').forEach(part => {
+                part.addEventListener('click', function() {
+                    toggleBodyPart(this);
+                });
             });
         });
-    });
 
-    function toggleBodyPart(element) {
-        const partId = element.id;
-        const tbsa = parseInt(element.dataset.tbsa);
-        if (selectedBodyParts.has(partId)) {
-            selectedBodyParts.delete(partId);
-            element.classList.remove('selected');
-            totalTBSA -= tbsa;
-        } else {
-            selectedBodyParts.add(partId);
-            element.classList.add('selected');
-            totalTBSA += tbsa;
-            handleCombinedParts(partId, tbsa, true);
+        function toggleBodyPart(element) {
+            const partId = element.id;
+            const tbsa = parseInt(element.dataset.tbsa);
+            const name = element.dataset.name;
+
+            if (selectedBodyParts.has(partId)) {
+                // Deselect
+                selectedBodyParts.delete(partId);
+                element.classList.remove('selected');
+                totalTBSA -= tbsa;
+            } else {
+                // Select
+                selectedBodyParts.add(partId);
+                element.classList.add('selected');
+                totalTBSA += tbsa;
+
+                // Handle combined parts (head front/back, arms, etc.)
+                handleCombinedParts(partId, tbsa, true);
+            }
+
+            updateSelectionDisplay();
         }
-        updateSelectionDisplay();
-    }
 
-    function handleCombinedParts(partId, tbsa, isSelecting) {
-        const combinedParts = {
-            'head': 'headBack',
-            'headBack': 'head',
-            'leftArm': 'leftArmBack', 
-            'leftArmBack': 'leftArm',
-            'rightArm': 'rightArmBack',
-            'rightArmBack': 'rightArm',
-            'leftThigh': 'leftThighBack',
-            'leftThighBack': 'leftThigh',
-            'rightThigh': 'rightThighBack', 
-            'rightThighBack': 'rightThigh',
-            'leftLeg': 'leftLegBack',
-            'leftLegBack': 'leftLeg',
-            'rightLeg': 'rightLegBack',
-            'rightLegBack': 'rightLeg'
-        };
+        function handleCombinedParts(partId, tbsa, isSelecting) {
+            // Prevent double counting for combined parts
+            const combinedParts = {
+                'head': 'headBack',
+                'headBack': 'head',
+                'leftArm': 'leftArmBack', 
+                'leftArmBack': 'leftArm',
+                'rightArm': 'rightArmBack',
+                'rightArmBack': 'rightArm',
+                'leftThigh': 'leftThighBack',
+                'leftThighBack': 'leftThigh',
+                'rightThigh': 'rightThighBack', 
+                'rightThighBack': 'rightThigh',
+                'leftLeg': 'leftLegBack',
+                'leftLegBack': 'leftLeg',
+                'rightLeg': 'rightLegBack',
+                'rightLegBack': 'rightLeg'
+            };
 
-        const counterpart = combinedParts[partId];
-        if (counterpart && selectedBodyParts.has(counterpart)) {
-            if (isSelecting) totalTBSA -= tbsa;
+            const counterpart = combinedParts[partId];
+            if (counterpart && selectedBodyParts.has(counterpart)) {
+                if (isSelecting) {
+                    // Both front and back selected, don't double count
+                    totalTBSA -= tbsa;
+                }
+            }
         }
-    }
 
-    function updateSelectionDisplay() {
-        const selectedPartsDiv = document.getElementById('selectedParts');
-        const totalTBSASpan = document.getElementById('totalTBSA');
-        const calculateBtn = document.getElementById('calculateBtn');
+        function updateSelectionDisplay() {
+            const selectedPartsDiv = document.getElementById('selectedParts');
+            const totalTBSASpan = document.getElementById('totalTBSA');
+            const calculateBtn = document.getElementById('calculateBtn');
 
-        totalTBSASpan.textContent = totalTBSA;
+            // Update TBSA display
+            totalTBSASpan.textContent = totalTBSA;
 
-        if (selectedBodyParts.size === 0) {
-            selectedPartsDiv.innerHTML = '<span style="color: #666; font-style: italic;">No parts selected</span>';
-            calculateBtn.disabled = true;
-        } else {
-            const partsList = Array.from(selectedBodyParts).map(partId => {
-                const element = document.getElementById(partId);
-                return `<span class="selected-part">${element.dataset.name}</span>`;
-            }).join('');
-            selectedPartsDiv.innerHTML = partsList;
-            calculateBtn.disabled = false;
+            // Update selected parts display
+            if (selectedBodyParts.size === 0) {
+                selectedPartsDiv.innerHTML = '<span style="color: #666; font-style: italic;">No parts selected</span>';
+                calculateBtn.disabled = true;
+            } else {
+                const partsList = Array.from(selectedBodyParts).map(partId => {
+                    const element = document.getElementById(partId);
+                    return `<span class="selected-part">${element.dataset.name}</span>`;
+                }).join('');
+                selectedPartsDiv.innerHTML = partsList;
+                calculateBtn.disabled = false;
+            }
         }
-    }
-</script>
 
+        // Weight control functions
+        function adjustWeight(change) {
+            const weightInput = document.getElementById('patientWeight');
+            let currentWeight = parseInt(weightInput.value) || 70;
+            let newWeight = currentWeight + change;
+            
+            // Keep within bounds
+            newWeight = Math.max(5, Math.min(300, newWeight));
+            
+            weightInput.value = newWeight;
+            validateWeight();
+        }
+
+        function setWeight(weight) {
+            const weightInput = document.getElementById('patientWeight');
+            weightInput.value = weight;
+            validateWeight();
+        }
+
+        function validateWeight() {
+            const weightInput = document.getElementById('patientWeight');
+            const weight = parseInt(weightInput.value);
+            
+            // Visual feedback for valid/invalid weight
+            if (weight && weight >= 5 && weight <= 300) {
+                weightInput.style.borderColor = '#28a745';
+                weightInput.style.background = '#f8fff9';
+            } else {
+                weightInput.style.borderColor = '#dc3545';
+                weightInput.style.background = '#fff5f5';
+            }
+        }
+
+        function calculateFluidRequirements() {
+            const weight = parseFloat(document.getElementById('patientWeight').value);
+            
+            if (!weight || weight < 5 || weight > 300) {
+                alert('Please enter a valid weight (5-300 kg)');
+                return;
+            }
+
+            if (totalTBSA === 0) {
+                alert('Please select at least one affected body part');
+                return;
+            }
+
+            // Check if fluid resuscitation is needed (TBSA >= 15%)
+            if (totalTBSA >= 15) {
+                // Parkland Formula: 4ml × weight(kg) × %TBSA for first 24 hours
+                const total24h = 4 * weight * totalTBSA;
+                const first8h = total24h / 2; // Half in first 8 hours
+                const next16h = total24h / 2; // Half in next 16 hours
+                const hourly8h = first8h / 8;
+                const hourly16h = next16h / 16;
+
+                // Display fluid results
+                document.getElementById('total24h').textContent = Math.round(total24h);
+                document.getElementById('first8h').textContent = Math.round(first8h);
+                document.getElementById('next16h').textContent = Math.round(next16h);
+                document.getElementById('hourly8h').textContent = Math.round(hourly8h);
+                document.getElementById('hourly16h').textContent = Math.round(hourly16h);
+                
+                document.getElementById('fluidResults').style.display = 'block';
+            } else {
+                // Hide fluid results for TBSA < 15%
+                document.getElementById('fluidResults').style.display = 'none';
+            }
+
+            // Perform triage assessment
+            performTriageAssessment(weight, totalTBSA);
+        }
+
+        function performTriageAssessment(weight, tbsa) {
+            const triageSection = document.getElementById('triageSection');
+            const triageResult = document.getElementById('triageResult');
+            const triageTBSA = document.getElementById('triageTBSA');
+            const triageWeight = document.getElementById('triageWeight');
+            const triageCategory = document.getElementById('triageCategory');
+            const triageActions = document.getElementById('triageActions');
+            const treatmentPlan = document.getElementById('treatmentPlan');
+
+            // Update basic info
+            triageTBSA.textContent = tbsa;
+            triageWeight.textContent = weight;
+
+            let category, actions, treatment, className, themeColor;
+
+            // Triage logic based on the chart
+            if (tbsa > 85 || (tbsa > 15 && weight < 10)) {
+                // BLACK - Expectant
+                category = "BLACK (Expectant)";
+                className = "triage-black";
+                themeColor = "black";
+                actions = "• Provide comfort care<br>• Do not resuscitate<br>• Focus resources on salvageable patients";
+                treatment = "Palliative care only. Patient likely non-survivable with current resources. Focus on pain management and comfort measures.";
+            } else if (tbsa > 15 || (tbsa > 10 && weight < 70)) {
+                // RED - Critical/Immediate
+                category = "RED (Critical - Immediate)";
+                className = "triage-red";
+                themeColor = "red";
+                actions = "• Immediate resuscitation<br>• Secure airway if needed<br>• Start IV fluid resuscitation<br>• Transfer to burn center ASAP";
+                treatment = "Immediate life-saving interventions required. Start Parkland formula, monitor closely, prepare for emergency transfer to specialized burn center.";
+            } else if (tbsa >= 10 && tbsa <= 15) {
+                // YELLOW - Delayed
+                category = "YELLOW (Delayed)";
+                className = "triage-yellow";
+                themeColor = "yellow";
+                actions = "• Admit for monitoring<br>• Pain management<br>• Wound care<br>• Prepare for delayed surgical treatment";
+                treatment = "Serious but stable condition. Can wait for treatment after critical patients. Monitor for complications and prepare for potential surgery.";
+            } else {
+                // GREEN - Minimal
+                category = "GREEN (Minimal)";
+                className = "triage-green";
+                themeColor = "green";
+                actions = "• Outpatient wound care<br>• Pain relief<br>• Patient education<br>• Follow-up appointments";
+                treatment = "Minor burns suitable for outpatient management. Focus on wound care, pain control, and patient education for home care.";
+            }
+
+            // Special considerations for fluid requirements
+            let fluidNote = "";
+            if (tbsa < 15) {
+                fluidNote = '<div class="no-fluid-note">💡 <strong>No IV Fluid Resuscitation Required</strong><br>TBSA < 15% - Oral hydration sufficient</div>';
+            }
+
+            // Update display
+            triageResult.className = `triage-result ${className}`;
+            triageResult.innerHTML = `<strong>${category}</strong><br>Patient requires ${category.split('(')[1].replace(')', '').toLowerCase()} priority treatment`;
+            
+            triageCategory.textContent = category;
+            triageActions.innerHTML = actions;
+            treatmentPlan.innerHTML = treatment + fluidNote;
+
+            // Change background theme based on triage
+            changeBackgroundTheme(themeColor);
+
+            // Show triage section with animation
+            triageSection.classList.add('show');
+        }
+
+        function changeBackgroundTheme(color) {
+            const body = document.body;
+            
+            // Remove existing theme classes
+            body.classList.remove('theme-red', 'theme-yellow', 'theme-green', 'theme-black');
+            
+            // Add new theme class
+            body.classList.add(`theme-${color}`);
+        }
+
+        // Show body selection after AI analysis
+        function showResults(result) {
+            document.getElementById('burnType').textContent = result.predicted_class || result.prediction || 'Unknown';
+            document.getElementById('confidence').textContent = ((result.confidence || 0) * 100).toFixed(1) + '%';
+            document.getElementById('results').style.display = 'block';
+            
+            // Show body part selection after results
+            document.getElementById('bodySelection').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
-
