@@ -1,5 +1,5 @@
-# 🔥 Burn Classification and Triage System  
-
+# 🔥 Burn Classification and Triage System             
+[Site link](https://burn-detector.onrender.com)
 This repository contains our work on **AI-driven burn injury assessment and triage**, presented in our research poster *“Triage Made Accurate, Portable, and Instant.”*  
 
 The system automates:  
